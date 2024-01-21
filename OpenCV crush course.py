@@ -54,9 +54,13 @@ while alive:
     # cv2.line(frame, (200, 100), (400, 100), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
     # cv2.rectangle(frame, (500, 100), (700, 600), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
 
-    # region change brightness
+    # region change brightness and contrast
+    # adjusting brightness:
     matrix = np.ones(frame.shape, dtype="uint8") * 50
     frame = cv2.add(frame, matrix)
+    # adjusting contrast:
+    matrix = np.ones(frame.shape) * 1.3
+    frame = np.uint8(np.clip(cv2.multiply(np.float64(frame), matrix), 0, 255))
 
     # endregion
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
