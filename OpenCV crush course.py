@@ -67,14 +67,8 @@ while alive:
     # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9,2)
 
     # region canny filtering
-    feature_params = dict(
-        maxCorners=1000,
-        qualityLevel=0.2,
-        minDistance=10,
-        blockSize=9
-    )
-    gray_frame = cv2.blur(gray_frame, (8, 8))
-    gray_frame = cv2.Canny(gray_frame, 60, 80)
+    gray_frame = cv2.blur(gray_frame, (2, 2))
+    gray_frame = cv2.Canny(gray_frame, 75, 80)
 
     cv2.imshow("grayframe", gray_frame)
     # cv2.imshow("grayframe_thresh_adp", gray_frame_thresh_adp)
