@@ -46,13 +46,11 @@ def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
 vs = cv2.VideoCapture('data/cropped_video.mp4')
 alive = True
 while alive:
+    # region read frame
     has_frame, frame = vs.read()
     if not has_frame:
         break
-    print(f"Image size is {frame.shape}")
-
-    # cv2.line(frame, (200, 100), (400, 100), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
-    # cv2.rectangle(frame, (500, 100), (700, 600), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
+    # endregion
 
     # region change brightness and contrast
     # adjusting brightness:
@@ -63,21 +61,20 @@ while alive:
     frame = np.uint8(np.clip(cv2.multiply(np.float64(frame), matrix), 0, 255))
 
     # endregion
+
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    print(f"Gray Image size is {gray_frame.shape}")
-    print(f"Data type is {gray_frame.dtype}")
-
     # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 4)
-    # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9,
-    #                                               2)
+    # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9,2)
 
+    # region canny filtering
     feature_params = dict(
-        maxCorners=500,
+        maxCorners=1000,
         qualityLevel=0.2,
-        minDistance=15,
+        minDistance=10,
         blockSize=9
     )
+    gray_frame = cv2.blur(gray_frame, (8, 8))
+    gray_frame = cv2.Canny(gray_frame, 60, 80)
 
     cv2.imshow("grayframe", gray_frame)
     # cv2.imshow("grayframe_thresh_adp", gray_frame_thresh_adp)
