@@ -23,7 +23,6 @@ Time frame: 3:18 - 4:33
 # vs.release()
 # cv2.destroyAllWindows()
 
-''' implementing https://www.tensorscience.com/posts/person-detection-in-video-streams-using-python-opencv-and-deep-learning.html'''
 
 from imutils.video import VideoStream
 from imutils.video import FPS
