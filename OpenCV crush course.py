@@ -41,9 +41,9 @@ def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
     vs.release()
 
 
-crop_video()
+# crop_video()
 
-vs = cv2.VideoCapture('data/LaLaLand_A_lovely_night_scene.mp4')
+vs = cv2.VideoCapture('data/cropped_video.mp4')
 alive = True
 while alive:
     _, frame = vs.read()
