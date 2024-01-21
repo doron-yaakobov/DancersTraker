@@ -29,7 +29,7 @@ def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
         timestamp = vs.get(cv2.CAP_PROP_POS_MSEC)
 
         # Check if the current timestamp is within the desired range
-        if timestamp >= start_time_in_msec and timestamp <= end_time_in_msec:
+        if start_time_in_msec <= timestamp <= end_time_in_msec:
             out.write(frame)
 
         # Check if the current timestamp is past the desired range
@@ -46,20 +46,38 @@ def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
 vs = cv2.VideoCapture('data/cropped_video.mp4')
 alive = True
 while alive:
-    _, frame = vs.read()
+    has_frame, frame = vs.read()
+    if not has_frame:
+        break
     print(f"Image size is {frame.shape}")
 
     # cv2.line(frame, (200, 100), (400, 100), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
     # cv2.rectangle(frame, (500, 100), (700, 600), (0, 255, 255), thickness=5, lineType=cv2.LINE_AA)
 
+    # region change brightness
+    matrix = np.ones(frame.shape, dtype="uint8") * 50
+    frame = cv2.add(frame, matrix)
+
+    # endregion
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
     print(f"Gray Image size is {gray_frame.shape}")
     print(f"Data type is {gray_frame.dtype}")
 
     # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 4)
-    gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 2)
+    # gray_frame_thresh_adp = cv2.adaptiveThreshold(gray_frame, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9,
+    #                                               2)
+
+    feature_params = dict(
+        maxCorners=500,
+        qualityLevel=0.2,
+        minDistance=15,
+        blockSize=9
+    )
+
     cv2.imshow("grayframe", gray_frame)
-    cv2.imshow("grayframe", gray_frame_thresh_adp)
+    # cv2.imshow("grayframe_thresh_adp", gray_frame_thresh_adp)
+
     pressed_key = cv2.waitKey(1)  # waits 1 mSec
     if pressed_key == 27 or pressed_key == ord("q") or pressed_key == ord("Q"):  # Esc pressed
         alive = False
