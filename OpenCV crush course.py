@@ -5,40 +5,52 @@ Time frame: 3:18 - 4:33
 
 import cv2
 import numpy as np
+import moviepy.editor as mp_editor
 
 
-def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
+# def crop_video(start_time_in_msec: int = 198000, end_time_in_msec: int = 273000,
+#                src_file: str = 'data/video/LaLaLand_A_lovely_night_scene.mp4',
+#                dst_file: str = 'data/video/cropped_video'):
+#     # Open the video
+#     vs = cv2.VideoCapture(src_file)
+#     # Set the video writer
+#     frame_width = int(vs.get(3))
+#     frame_height = int(vs.get(4))
+#
+#     fourcc = cv2.VideoWriter.fourcc(*'XVID')
+#     out = cv2.VideoWriter(f'{dst_file}.mp4', fourcc, 10, (frame_width, frame_height))
+#
+#     # Read and write the frames
+#     while True:
+#         ret, frame = vs.read()
+#         if not ret:
+#             break
+#
+#         # Get the current timestamp
+#         timestamp = vs.get(cv2.CAP_PROP_POS_MSEC)
+#
+#         # Check if the current timestamp is within the desired range
+#         if start_time_in_msec <= timestamp <= end_time_in_msec:
+#             out.write(frame)
+#
+#         # Check if the current timestamp is past the desired range
+#         if timestamp > end_time_in_msec:
+#             break
+#
+#     # Release the video writer and close the video
+#     out.release()
+#     vs.release()
+#
+
+def crop_video(start_time_in_sec: int = 2*60+55, end_time_in_sec: int = 4*60+33,
                src_file: str = 'data/video/LaLaLand_A_lovely_night_scene.mp4',
-               dst_file: str = 'data/video/cropped_video'):
-    # Open the video
-    vs = cv2.VideoCapture(src_file)
-    # Set the video writer
-    frame_width = int(vs.get(3))
-    frame_height = int(vs.get(4))
-
-    fourcc = cv2.VideoWriter.fourcc(*'XVID')
-    out = cv2.VideoWriter(f'{dst_file}.mp4', fourcc, 10, (frame_width, frame_height))
-
-    # Read and write the frames
-    while True:
-        ret, frame = vs.read()
-        if not ret:
-            break
-
-        # Get the current timestamp
-        timestamp = vs.get(cv2.CAP_PROP_POS_MSEC)
-
-        # Check if the current timestamp is within the desired range
-        if start_time_in_msec <= timestamp <= end_time_in_msec:
-            out.write(frame)
-
-        # Check if the current timestamp is past the desired range
-        if timestamp > end_time_in_msec:
-            break
-
-    # Release the video writer and close the video
-    out.release()
-    vs.release()
+               dst_file: str = 'data/video/cropped_video_ver_3.mp4'):
+    src = mp_editor.VideoFileClip(src_file)
+    dst = src.subclip(start_time_in_sec, end_time_in_sec)
+    dst.write_videofile(dst_file)
+    src.reader.close()
+    src.audio.reader.close_proc()
+    return 0
 
 
 def drawRectangle(frame, bbox):
@@ -65,27 +77,27 @@ def canny_filter(bgr_frame, dtype: str = "uint8", brightness_factor: int = 50, c
     return cv2.Canny(blur_frame, canny_min, canny_max)
 
 
-crop_video(start_time_in_msec=19000, dst_file="data/video/cropped_video(input)")
+crop_video()
 
 if __name__ == "__main__":
-    vs = cv2.VideoCapture('data/video/cropped_video(input).mp4')
-    tracker = cv2.legacy.TrackerCSRT().create()
+    output_video = "data/video/cv2.trackerCSRT_output_ver3"
+    vs = cv2.VideoCapture('data/video/cropped_video_ver_3.mp4')
+    tracker = cv2.legacy.TrackerCSRT.create()
     frame_width = int(vs.get(3))
     frame_height = int(vs.get(4))
-    out = cv2.VideoWriter(f'{"data/video/cv2.trackerCSRT_output"}.mp4', cv2.VideoWriter.fourcc(*'XVID'), 10,
-                          (frame_width, frame_height))
+    # out = cv2.VideoWriter(f'{output_video}.mp4', cv2.VideoWriter.fourcc(*'XVID'), 10, (frame_width, frame_height))
 
     # region init tracker
     has_frame, frame = vs.read()
     bbox = [825, 375, 183, 415]
     drawRectangle(frame, bbox)
+    cv2.imshow("frame", frame)
+    cv2.waitKey(0)
+    cv2.destroyWindow("frame")
+    # endregion
     cv2.imwrite("data/image/bboxed_first_dancer_frame.png", frame)
     adjusted_frame = canny_filter(frame)
     ok = tracker.init(adjusted_frame, bbox)
-    # cv2.imshow("frame", frame)
-    # cv2.waitKey(0)
-    # cv2.destroyWindow("frame")
-    # endregion
 
     print(f"traker init stauts:\t{ok}")
 
@@ -107,14 +119,14 @@ if __name__ == "__main__":
             print("Failed to track.")
 
         cv2.imshow("frame", frame)
-        out.write(frame)
+        # out.write(frame)
 
         pressed_key = cv2.waitKey(1)  # waits 1 mSec
         if pressed_key == 27 or pressed_key == ord("q") or pressed_key == ord("Q"):  # Esc pressed
             alive = False
 
     # closing the video properly:
-    out.release()
+    # out.release()
     vs.release()
     cv2.destroyAllWindows()
 
