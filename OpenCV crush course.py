@@ -42,7 +42,7 @@ import moviepy.editor as mp_editor
 #     vs.release()
 #
 
-def crop_video(start_time_in_sec: int = 2*60+55, end_time_in_sec: int = 4*60+33,
+def crop_video(start_time_in_sec: int = 2 * 60 + 55, end_time_in_sec: int = 4 * 60 + 33,
                src_file: str = 'data/video/LaLaLand_A_lovely_night_scene.mp4',
                dst_file: str = 'data/video/cropped_video_ver_3.mp4'):
     src = mp_editor.VideoFileClip(src_file)
@@ -77,9 +77,9 @@ def canny_filter(bgr_frame, dtype: str = "uint8", brightness_factor: int = 50, c
     return cv2.Canny(blur_frame, canny_min, canny_max)
 
 
-crop_video()
-
 if __name__ == "__main__":
+    # crop_video()
+
     output_video = "data/video/cv2.trackerCSRT_output_ver3"
     vs = cv2.VideoCapture('data/video/cropped_video_ver_3.mp4')
     tracker = cv2.legacy.TrackerCSRT.create()
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     # region init tracker
     has_frame, frame = vs.read()
-    bbox = [825, 375, 183, 415]
+    bbox = [725, 262, 215, 650]
     drawRectangle(frame, bbox)
     cv2.imshow("frame", frame)
     cv2.waitKey(0)
