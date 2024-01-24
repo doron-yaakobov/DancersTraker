@@ -85,20 +85,22 @@ if __name__ == "__main__":
     tracker = cv2.legacy.TrackerCSRT.create()
     frame_width = int(vs.get(3))
     frame_height = int(vs.get(4))
-    # out = cv2.VideoWriter(f'{output_video}.mp4', cv2.VideoWriter.fourcc(*'XVID'), 10, (frame_width, frame_height))
+    out = cv2.VideoWriter(f'{output_video}.mp4', cv2.VideoWriter.fourcc(*'XVID'), 10, (frame_width, frame_height))
 
-    # region init tracker
+    # init tracker
     has_frame, frame = vs.read()
+    adjusted_frame = canny_filter(frame)
+
     bbox = [725, 262, 215, 650]
     drawRectangle(frame, bbox)
-    cv2.imshow("frame", frame)
-    cv2.waitKey(0)
-    cv2.destroyWindow("frame")
-    # endregion
     cv2.imwrite("data/image/bboxed_first_dancer_frame.png", frame)
-    adjusted_frame = canny_filter(frame)
-    ok = tracker.init(adjusted_frame, bbox)
 
+    cv2.imshow("bboxed frame", frame)
+    cv2.imshow("adjusted frame", adjusted_frame)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    ok = tracker.init(adjusted_frame, bbox)
     print(f"traker init stauts:\t{ok}")
 
     alive = True
