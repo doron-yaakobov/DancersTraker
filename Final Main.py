@@ -138,50 +138,53 @@ def run_YOLO_NAS_Tracker(video_cap, writer, model: str, classes_path: str, male_
             break
 
 
-# endregion
-
-def main(_argv):
-    src_video = r"data\Video\LaLaLand_A_lovely_night_scene.mp4"
-    dst = r"\data\Video\output\requested_scene_cropped.mp4"
-    dst_part_1 = r"data\Video\output\requested_scene_cropped_pt_1.mp4"
-    dst_part_2 = r"data\Video\output\requested_scene_cropped_pt_2.mp4"
-    output = r"data\Video\output\output.mp4"
-    model = "yolo_nas_l"
-    classes_path = "./configs/coco.names"
-
-    crop_video(3 * 60 + 18,
-               4 * 60 + 33,
-               src_video, dst)
-    crop_video(3 * 60 + 18,
-               3 * 60 + 54,
-               src_video, dst_part_1)
-    crop_video(3 * 60 + 54,
-               4 * 60 + 33,
-               src_video, dst_part_2)
-
-    video_cap = cv2.VideoCapture(dst_part_1)
-    # region Init the video writer object
+def init_writer(video_cap, output: str, output_format: str = 'MP4V'):
     frame_width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(video_cap.get(cv2.CAP_PROP_FPS))
-    fourcc = cv2.VideoWriter.fourcc(*'MP4V')
-    writer = cv2.VideoWriter(output, fourcc, fps, (frame_width, frame_height))
+    fourcc = cv2.VideoWriter.fourcc(*output_format)
+    return cv2.VideoWriter(output, fourcc, fps, (frame_width, frame_height))
+
+
+# endregion
+
+def main(_argv):
+    # region config and setup
+    ROOT_DIR = r"C:\Users\dorony\PycharmProjects\DancersTraker"
+    model = "yolo_nas_l"
+    classes_path = "./configs/coco.names"
+    scene_start_time = 3 * 60 + 18
+    scene_end_time = 4 * 60 + 33
+    src_video = ROOT_DIR + r"\data\Video\LaLaLand_A_lovely_night_scene.mp4"
+    dst = ROOT_DIR + r"\\data\Video\output\requested_scene_cropped.mp4"
+    dst_part_1 = ROOT_DIR + r"\data\Video\output\requested_scene_cropped_pt_1.mp4"
+    dst_part_2 = ROOT_DIR + r"\data\Video\output\requested_scene_cropped_pt_2.mp4"
+    dst_part_3 = ROOT_DIR + r"\data\Video\output\requested_scene_cropped_pt_3.mp4"
+    output = ROOT_DIR + r"\data\Video\output\Tracked_Dancers.mp4"
+    crop_video(scene_start_time, scene_end_time, src_video, dst)
+    crop_video(0, 36, dst, dst_part_1)
+    crop_video(36, 58, dst, dst_part_2)
+    crop_video(58, 1 * 60 + 15, dst, dst_part_3)
+    writer_initialized = False
     # endregion
 
-    run_YOLO_NAS_Tracker(video_cap, writer, model, classes_path, "2", "1")
+    for curr_video in [dst_part_1, dst_part_2, dst_part_3]:
+        video_cap = cv2.VideoCapture(curr_video)
 
-    video_cap.release()
-    video_cap = cv2.VideoCapture(dst_part_2)
-    run_YOLO_NAS_Tracker(video_cap, writer, model, classes_path, "2", "1")
+        if not writer_initialized:
+            writer = init_writer(video_cap, output)
+            writer_initialized = True
 
-    video_cap.release()
+        male_track_id = "1" if curr_video in [dst_part_3, dst_part_2] else "2"
+        female_track_id = "2" if curr_video in [dst_part_3, dst_part_2] else "1"
+        run_YOLO_NAS_Tracker(video_cap, writer, model, classes_path, male_track_id, female_track_id)
+
+        video_cap.release()
+
     writer.release()
     cv2.destroyAllWindows()
     exit()
 
 
 if __name__ == '__main__':
-    try:
-        app.run(main)
-    except SystemExit:
-        pass
+    app.run(main)
