@@ -40,7 +40,7 @@ import moviepy.editor as mp_editor
 #     # Release the video writer and close the video
 #     out.release()
 #     vs.release()
-#
+
 
 def crop_video(start_time_in_sec: int = 2 * 60 + 55, end_time_in_sec: int = 4 * 60 + 33,
                src_file: str = 'data/video/LaLaLand_A_lovely_night_scene.mp4',
@@ -90,6 +90,9 @@ if __name__ == "__main__":
     # init tracker
     has_frame, frame = vs.read()
     adjusted_frame = canny_filter(frame)
+
+    cv2.imwrite("data/image/canny_first_dancer_frame.png", adjusted_frame)
+    cv2.imwrite("data/image/first_dancer_frame.png", frame)
 
     bbox = [725, 262, 215, 650]
     drawRectangle(frame, bbox)
